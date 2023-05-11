@@ -8,9 +8,8 @@ import cmd
 
 class HBNBCommand(cmd.Cmd):
     """the functionality of HBNB console"""
-
-    prompt = "(hbnb) " if sys.__stdin__.isatty() else ""
-       
+    prompt = "(hbnb)"
+           
     def emptyline(self):
         """ Overrides the emptyline method of CMD """
         pass
