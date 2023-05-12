@@ -10,6 +10,7 @@ import unittest
 class TestBaseModelClass(unittest.TestCase):  
     
       """ the TestIdString function test case
+      tests the data type of the id provided by the  
       object
       """
 
