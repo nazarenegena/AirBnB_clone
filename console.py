@@ -15,7 +15,7 @@ class HBNBCommand(cmd.Cmd):
         pass
 
     def default(self, arg):
-        """Default behaviour for cmd module when input is invalid"""
+        """Default behaviour for the cmd module when input is invalid"""
         action_map = {
             "all": self.do_all,
             "show": self.do_show,
