@@ -4,8 +4,9 @@ The Console Module.
 """
 import cmd
 import re
+from models.__init__ import storage
 from models.base_model import BaseModel
-from models import storage
+from models.user import User
 
 
 class HBNBCommand(cmd.Cmd):
