@@ -18,7 +18,7 @@ class HBNBCommand(cmd.Cmd):
 
     """Command line interpreter for HBNB application."""
 
-    prompt = "(hbnb) " if sys.__stdin__.isatty() else ""
+    prompt = "(hbnb) " 
 
     classes = {
         "BaseModel": BaseModel,
