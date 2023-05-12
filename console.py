@@ -18,7 +18,17 @@ class HBNBCommand(cmd.Cmd):
 
     """Command line interpreter for HBNB application."""
 
-    prompt = "(hbnb) "
+    prompt = "(hbnb) " if sys.__stdin__.isatty() else ""
+
+    classes = {
+        "BaseModel": BaseModel,
+        'User': User,
+        'Place': Place,
+        'State': State,
+        'City': City,
+        'Amenity': Amenity,
+        'Review': Review
+    }
 
     # an empty line +
     # enter shouldn’t execute anything
