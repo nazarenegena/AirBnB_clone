@@ -8,6 +8,8 @@ import datetime
 import json
 import os
 
+from models.user import User
+
 
 """FileStorage class module."""
 
@@ -31,15 +33,14 @@ class FileStorage():
 
     # serialize the object instance as a file
     def save(self):
-        with open(self.__file_path, "w") as f:
-            json.dump(self.__objects, f)
-
-    def save(self):
-
-        with open(self.__file_path, "w") as f:
-            serialized_objects = {k: v.to_dict()
-                                  for k, v in self.__objects.items()}
-            json.dump(serialized_objects, f)
+        """
+        Serialize __objects to the JSON file
+        """
+        with open(self.__file_path, mode="w") as f:
+            dict_storage = {}
+            for key, value in self.__objects.items():
+                dict_storage[key] = value.to_dict()
+            json.dump(dict_storage, f)
     
     # method to deserialize json file to obj
     def reload(self):
