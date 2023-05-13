@@ -48,13 +48,10 @@ class BaseModel():
 
     def to_dict(self) :
          # creating a shallow copy of the instance dictionary
-        obj_dict = self.__dict__.copy()
-
-        # adding the class name to the dictionary
-        obj_dict['__class__'] = type(self).__name__
-
-        # converting the datetime objects to ISO formatted strings
-        obj_dict['created_at'] = self.created_at.isoformat()
-        obj_dict['updated_at'] = self.updated_at.isoformat()
-
-        return obj_dict
+        my_dict = self.__dict__.copy()
+        my_dict["__class__"] = self.__class__.__name__
+        for key, value in self.__dict__.items():
+            if key in ("created_at", "updated_at"):
+                value = self.__dict__[key].isoformat()
+                my_dict[key] = value
+        return my_dict

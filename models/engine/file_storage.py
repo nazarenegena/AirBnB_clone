@@ -50,13 +50,15 @@ class FileStorage():
     
     # method to deserialize json file to obj
     def reload(self):
-        # check if file is created 
-        if not os.path.isfile(FileStorage.__file_path):
-            return
-        # write encoded file into the attribute
-        with open(FileStorage.__file_path, "r", encoding="utf-8") as f:
-            obj_dict = json.load(f)
-            obj_dict = {m: self.save()[n["__class__"]](**n)
-                        for m, n in obj_dict.items()}
-            FileStorage.__objects = obj_dict
-
+        classes = {
+            'BaseModel': BaseModel, 'User': User, 'Place': Place,
+            'State': State, 'City': City, 'Amenity': Amenity,
+            'Review': Review
+        }
+        try:
+            with open(self.__file_path, 'r') as f:
+                jo = json.load(f)
+            for key in jo:
+                self.__objects[key] = classes[jo[key]["__class__"]](**jo[key])
+        except FileNotFoundError:
+            pass

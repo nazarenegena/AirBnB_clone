@@ -4,6 +4,8 @@ The Console Module.
 """
 import cmd
 import re
+import sys
+import shlex
 from models.__init__ import storage
 from models.base_model import BaseModel
 from models.user import User
@@ -14,11 +16,54 @@ from models.amenity import Amenity
 from models.review import Review
 
 
+def parse_cmd(argv: str) -> list:
+    """
+    Parse or split a string (argv) based on some pattern
+    example, spaces, brackects
+
+    :param argv: string
+    :return:  a list of words representing the parsed string
+    """
+    braces = re.search(r"\{(.*?)}", argv)
+    brackets = re.search(r"\[(.*?)]", argv)
+    if not braces:
+        if not brackets:
+            return [i.strip(",") for i in shlex.split(argv)]
+        else:
+            var = shlex.split(argv[:brackets.span()[0]])
+            retval = [i.strip(",") for i in var]
+            retval.append(brackets.group())
+            return retval
+    else:
+        var = shlex.split(argv[:braces.span()[0]])
+        retval = [i.strip(",") for i in var]
+        retval.append(braces.group())
+        return retval
+
+
+def check_args(args):
+    """
+    checks if args is valid
+    Args:
+        args (str): the string containing the arguments passed to a command
+    Returns:
+        Error message if args is None or not a valid class, else the arguments
+    """
+    arg_list = parse_cmd(args)
+    if len(arg_list) == 0:
+        print("** class name missing **")
+    elif arg_list[0] not in HBNBCommand.classes:
+        print("** class doesn't exist **")
+    else:
+        return arg_list
+
+
+
 class HBNBCommand(cmd.Cmd):
 
     """Command line interpreter for HBNB application."""
 
-    prompt = "(hbnb) " 
+    prompt = "(hbnb) " if sys.__stdin__.isatty() else "" 
 
     classes = {
         "BaseModel": BaseModel,
@@ -29,6 +74,18 @@ class HBNBCommand(cmd.Cmd):
         'Amenity': Amenity,
         'Review': Review
     }
+
+    def preloop(self):
+        """Prints if isatty is false"""
+        if not sys.__stdin__.isatty():
+            print('(hbnb)')
+
+    def postcmd(self, stop, line):
+        """Prints if isatty is false"""
+        if not sys.__stdin__.isatty():
+            print('(hbnb) ', end='')
+        return stop    
+
 
     # an empty line +
     # enter shouldn’t execute anything
@@ -76,56 +133,26 @@ class HBNBCommand(cmd.Cmd):
         # creates a new class instance & prints its id
         # arg represents the class being called
 
-        if not arg:
-            print("** class name missing **")
-            return
-
-        class_name = arg.strip()
-        try:
-            new_instance = eval(class_name)()
-            new_instance.save()
-            print(new_instance.id)
-        except AttributeError:
-            print("** class doesn't exist **")
-
+        args = check_args(arg)
+        if args:
+            print(eval(args[0])().id)
+            storage.save()
 
     def do_show(self, arg):
 
         # handles the show command
         # displays a string representation of a class instance
 
-        args = arg.split()
-
-        if not args:
-            print("** class name missing **")
-            return
-
-        class_name = args[0]
-
-        # if classname is missing
-
-        if class_name not in storage.__class__():
-            print("** class doesn't exist **")
-            return
-
-        # if classname does not exist
-
-        if len(args) < 2:
-            print("** instance id missing **")
-            return
-
-        instance_id = args[1]
-        key = class_name + "." + instance_id
-        instances = storage.all()
-
-        # if the instance id is missing
-
-        if key not in instances:
-            print("** no instance found **")
-            return
-
-        instance = instances[key]
-        print(instance)
+        args = check_args(arg)
+        if args:
+            if len(args) != 2:
+                print("** instance id missing **")
+            else:
+                key = "{}.{}".format(args[0], args[1])
+                if key not in storage.all():
+                    print("** no instance found **")
+                else:
+                    print(storage.all()[key])
 
     def do_destroy(self, arg):
 
@@ -189,54 +216,27 @@ class HBNBCommand(cmd.Cmd):
     # saves the change into the JSON file
 
 
-        args = arg.split()
-
-        # print if the class name is missing
-        if not args:
-            print("** class name missing **")
-            return
-
-        # print if the class name doesn't exist
-        class_name = args[0]
-        if class_name not in storage.__class__():
-            print("** class doesn't exist **")
-            return
-
-        # print if the instance id is missing
-        if len(args) < 2:
-            print("** instance id missing **")
-            return
-
-        # check if the instance exists
-        instance_id = args[1]
-        key = class_name + "." + instance_id
-        instances = storage.all()
-
-        # print if no instance is found
-        if key not in instances:
-            print("** no instance found **")
-            return
-
-        instance = instances[key]
-
-        # print if the attribute name is missing
-        if len(args) < 3:
-            print("** attribute name missing **")
-            return
-
-        attribute_name = args[2]
-
-        # print if the value for the attribute name is missing
-        if len(args) < 4:
-            print("** value missing **")
-            return
-
-        attribute_value = args[3]
-
-        # update the attribute value
-        setattr(instance, attribute_name,eval(attribute_value))
-        # storage.save()
-        instance.save()
+        arg_list = check_args(arg)
+        if arg_list:
+            if len(arg_list) == 1:
+                print("** instance id missing **")
+            else:
+                instance_id = "{}.{}".format(arg_list[0], arg_list[1])
+                if instance_id in storage.all():
+                    if len(arg_list) == 2:
+                        print("** attribute name missing **")
+                    elif len(arg_list) == 3:
+                        print("** value missing **")
+                    else:
+                        obj = storage.all()[instance_id]
+                        if arg_list[2] in type(obj).__dict__:
+                            v_type = type(obj.__class__.__dict__[arg_list[2]])
+                            setattr(obj, arg_list[2], v_type(arg_list[3]))
+                        else:
+                            setattr(obj, arg_list[2], arg_list[3])
+                else:
+                    print("** no instance found **")
+            storage.save()
 
 
 # the cmdloop call starts the interpreter
