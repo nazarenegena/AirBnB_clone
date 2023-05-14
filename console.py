@@ -205,6 +205,33 @@ class HBNBCommand(cmd.Cmd):
                 print("** class doesn't exist **")
                 return
             print([str(instance) for instance in BaseModel.all() if instance.__class__.__name__ == class_name])
+    def do_count(self, arg):
+
+        """
+        the action counts the number of instances of a class.
+        Usage: <class name>.count()
+        """
+        args = arg.split()
+
+        if not args:
+            print("** class name missing **")
+            return
+
+        class_name = args[0]
+
+        # Check if the class exists
+        if class_name not in storage.__class__():
+            print("** class doesn't exist **")
+            return
+
+        count = 0
+        instances = storage.all()
+
+        # Count instances of the given class
+        for key in instances:
+            if key.split('.')[0] == class_name:
+             count += 1  
+             print(count)
 
     def do_update(self, arg):
 
