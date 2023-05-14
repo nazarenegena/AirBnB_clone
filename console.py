@@ -113,7 +113,7 @@ class HBNBCommand(cmd.Cmd):
                 command = [arg1[1][:match.span()[0]], match.group()[1:-1]]
                 if command[0] in action_map:
                     call = "{} {}".format(arg1[0], command[1])
-                    return action_map[command[0]](call)
+                    return action_map[command[0]](call)        
 
         print("*** Unknown syntax: {}".format(arg))
         return False
@@ -143,7 +143,8 @@ class HBNBCommand(cmd.Cmd):
         # handles the show command
         # displays a string representation of a class instance
 
-        args = check_args(arg)
+        args = re.findall(r'\w+', arg)
+
         if args:
             if len(args) != 2:
                 print("** instance id missing **")
@@ -159,7 +160,7 @@ class HBNBCommand(cmd.Cmd):
         # handles the destroy command
         # destroys the class instance of a given id
 
-        args = arg.split()
+        args = re.findall(r'\w+', arg)
 
         # prints if the classname is missing
         if not args:
