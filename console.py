@@ -47,13 +47,15 @@ def check_args(args):
     Args:
         args (str): the string containing the arguments passed to a command
     Returns:
-        Error message if args is None or not a valid class, else the arguments
+        the arguments if they are valid, otherwise None
     """
     arg_list = parse_cmd(args)
     if len(arg_list) == 0:
         print("** class name missing **")
+        return None
     elif arg_list[0] not in HBNBCommand.classes:
         print("** class doesn't exist **")
+        return None
     else:
         return arg_list
 
@@ -73,6 +75,19 @@ class HBNBCommand(cmd.Cmd):
         'Amenity': Amenity,
         'Review': Review
     }
+
+    def do_BaseModel(self, arg):
+        """Command to handle BaseModel class"""
+        args = arg.split()
+        if len(args) == 0:
+            print("** class name missing **")
+            return None
+        elif args[0] != "BaseModel":
+            print("** class doesn't exist **")
+            return None
+        elif len(args) == 1:
+            print("** instance id missing **")
+            return None
 
     def preloop(self):
         """Prints if isatty is false"""
@@ -110,8 +125,7 @@ class HBNBCommand(cmd.Cmd):
             if match:
                 command = [arg1[1][:match.span()[0]], match.group()[1:-1]]
                 if command[0] in action_map:
-                    call = "{} {}".format(arg1[0], command[1])
-                    return action_map[command[0]](call)
+                    return action_map[command[0]](arg1[0], command[1])
 
         print("*** Unknown syntax: {}".format(arg))
         return False
@@ -166,42 +180,31 @@ class HBNBCommand(cmd.Cmd):
     def do_destroy(self, arg):
         """
         Deletes an instance based on the class name and id
-        [USAGE]: destroy <classname> <id>
         """
-        # handles the destroy command
-        # destroys the class instance of a given id
-
-        args = re.findall(r'\w+', arg)
-
-        # prints if the classname is missing
-        if not args:
+        if not arg:
             print("** class name missing **")
             return
 
-        # prints if classname doesn't exist
-        class_name = args[0]
-        if class_name not in storage.__class__():
-            print("** class doesn't exist **")
-            return
-
-        # prints if the instance id is missing
-        if len(args) < 2:
+        args = arg.split()
+        if len(args) < 1:
             print("** instance id missing **")
             return
 
-        # check instances & deletes instance from storage
+        class_name = args[0]
+        obj_id = args[1]
+        key = class_name + "." + obj_id
 
-        instance_id = args[1]
-        key = class_name + "." + instance_id
-        instances = storage.all()
-
-        # saves the changes in the code
-
-        if key not in instances:
+        if key not in storage.all():
             print("** no instance found **")
             return
 
-        del instances[key]
+        # use type() instead of __class__() to get class type
+        if class_name not in type(storage).__dict__:
+            print("** class doesn't exist **")
+            return
+
+        objs = storage.all()[key]
+        objs.delete()
         storage.save()
 
     def do_all(self, arg):
@@ -266,10 +269,11 @@ class HBNBCommand(cmd.Cmd):
                     print("** no instance found **")
             storage.save()
 
-
 # the cmdloop call starts the interpreter
 # prevent code from being executed when the module is imported
 # cmdloop() method will continue to prompt the user for input
 # til they exit the interpreter.
+
+
 if __name__ == "__main__":
     HBNBCommand().cmdloop()
