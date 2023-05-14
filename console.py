@@ -21,7 +21,7 @@ def parse_cmd(argv: str) -> list:
     Parse or split a string (argv) based on some pattern
     example, spaces, brackects
 
-    :param argv: string
+    :param arg: string
     :return:  a list of words representing the parsed string
     """
     braces = re.search(r"\{(.*?)}", argv)
@@ -58,12 +58,11 @@ def check_args(args):
         return arg_list
 
 
-
 class HBNBCommand(cmd.Cmd):
 
     """Command line interpreter for HBNB application."""
 
-    prompt = "(hbnb) " if sys.__stdin__.isatty() else "" 
+    prompt = "(hbnb) " if sys.__stdin__.isatty() else ""
 
     classes = {
         "BaseModel": BaseModel,
@@ -84,11 +83,10 @@ class HBNBCommand(cmd.Cmd):
         """Prints if isatty is false"""
         if not sys.__stdin__.isatty():
             print('(hbnb) ', end='')
-        return stop    
-
-
+        return stop
     # an empty line +
     # enter shouldn’t execute anything
+
     def emptyline(self):
         """ Overrides the emptyline method of CMD """
         pass
@@ -113,22 +111,28 @@ class HBNBCommand(cmd.Cmd):
                 command = [arg1[1][:match.span()[0]], match.group()[1:-1]]
                 if command[0] in action_map:
                     call = "{} {}".format(arg1[0], command[1])
-                    return action_map[command[0]](call)        
+                    return action_map[command[0]](call)
 
         print("*** Unknown syntax: {}".format(arg))
         return False
 
     # handles the EOF to exit program
     def do_EOF(self, arg):
+        """Handles EOF to exit program"""
         print()
         return True
 
     # handles the quit action of the program
     def do_quit(self, arg):
+        """Exits the program"""
         return True
 
     def do_create(self, arg):
-
+        """
+        Create an Instance of a class
+        [USAGE]: create <classname>
+        [Return]: id of the created class
+        """
         # handles the create command
         # creates a new class instance & prints its id
         # arg represents the class being called
@@ -139,7 +143,11 @@ class HBNBCommand(cmd.Cmd):
             storage.save()
 
     def do_show(self, arg):
-
+        """
+        Prints the string representation of an instance
+        based on the class name and id
+        [USAGE]: show <classname> <id>
+        """
         # handles the show command
         # displays a string representation of a class instance
 
@@ -156,7 +164,10 @@ class HBNBCommand(cmd.Cmd):
                     print(storage.all()[key])
 
     def do_destroy(self, arg):
-
+        """
+        Deletes an instance based on the class name and id
+        [USAGE]: destroy <classname> <id>
+        """
         # handles the destroy command
         # destroys the class instance of a given id
 
@@ -194,52 +205,44 @@ class HBNBCommand(cmd.Cmd):
         storage.save()
 
     def do_all(self, arg):
+        """
+        Prints all string representation of all instances
+        [USAGE]: all <classname>
+        """
         # print the string representation of all the classes instance
         # represents the all command
         # prints if no classname is provided
-        if not arg:
-            print([str(instance) for instance in BaseModel.all()])
+        arg_list = shlex.split(arg)
+        objects = storage.all().values()
+        if not arg_list:
+            print([str(obj) for obj in objects])
         else:
-            class_name = arg.strip()
-            # prints if classname is not provided
-            if class_name not in storage.classes():
+            if arg_list[0] not in HBNBCommand.classes:
                 print("** class doesn't exist **")
-                return
-            print([str(instance) for instance in BaseModel.all() if instance.__class__.__name__ == class_name])
-    def do_count(self, arg):
+            else:
+                print([str(obj) for obj in objects if arg_list[0] in str(obj)])
 
+    def do_count(self, arg):
         """
         the action counts the number of instances of a class.
         Usage: <class name>.count()
         """
-        args = arg.split()
-
-        if not args:
-            print("** class name missing **")
-            return
-
-        class_name = args[0]
-
-        # Check if the class exists
-        if class_name not in storage.__class__():
-            print("** class doesn't exist **")
-            return
-
+        arg1 = parse_cmd(arg)
         count = 0
-        instances = storage.all()
-
-        # Count instances of the given class
-        for key in instances:
-            if key.split('.')[0] == class_name:
-             count += 1  
-             print(count)
+        for obj in storage.all().values():
+            if arg1[0] == type(obj).__name__:
+                count += 1
+        print(count)
 
     def do_update(self, arg):
-
-    # handles the update command
-    # updates an instance based on the class name & id
-    # saves the change into the JSON file
-
+        """
+        Updates an instance based on the class name and id
+        by adding or updating attribute
+        [USAGE]: update <classname> <id> <attribute name> "<attribute value>"
+        """
+        # handles the update command
+        # updates an instance based on the class name & id
+        # saves the change into the JSON file
 
         arg_list = check_args(arg)
         if arg_list:

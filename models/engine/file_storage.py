@@ -47,7 +47,7 @@ class FileStorage():
             for key, value in self.__objects.items():
                 dict_storage[key] = value.to_dict()
             json.dump(dict_storage, f)
-    
+
     # method to deserialize json file to obj
     def reload(self):
         classes = {
