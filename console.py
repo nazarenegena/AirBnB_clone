@@ -195,19 +195,16 @@ class HBNBCommand(cmd.Cmd):
     def do_all(self, arg):
         # print the string representation of all the classes instance
         # represents the all command
-        instances = storage.all()
-
         # prints if no classname is provided
         if not arg:
-            print([str(instance) for instance in instances.values()])
+            print([str(instance) for instance in BaseModel.all()])
         else:
             class_name = arg.strip()
-
             # prints if classname is not provided
             if class_name not in storage.classes():
                 print("** class doesn't exist **")
                 return
-            print([str(instance) for instance in instances.values() if instance.__class__.__name__ == class_name])
+            print([str(instance) for instance in BaseModel.all() if instance.__class__.__name__ == class_name])
 
     def do_update(self, arg):
 
