@@ -21,21 +21,27 @@ from models.review import Review
 
 
 class FileStorage():
-
+    """
+       serializes instances to a JSON file and
+       deserializes JSON file to instances
+    """
     __file_path = "file.json"
     __objects = {}
 
     # public instance methods
 
     def all(self):
+        """
+        Returns the dictionary __objects
+        """
         __objects = self.__dict__
         return __objects
 
     def new(self, obj):
-        # the __objects key is created & assigned to obj_key
-        # combine the classname with the objects id
-        obj_key = obj.__class__.__name__ + "." + str(obj.id)
-        self.__objects[obj_key] = obj
+        """ the __objects key is created & assigned to obj_key
+          combine the classname with the objects id
+        """
+        self.__objects["{}.{}".format(obj.__class__.__name__, obj.id)] = obj
 
     # serialize the object instance as a file
     def save(self):
@@ -47,9 +53,12 @@ class FileStorage():
             for key, value in self.__objects.items():
                 dict_storage[key] = value.to_dict()
             json.dump(dict_storage, f)
-    
+
     # method to deserialize json file to obj
     def reload(self):
+        """
+        Deserializes the JSON file to __objects
+        """
         classes = {
             'BaseModel': BaseModel, 'User': User, 'Place': Place,
             'State': State, 'City': City, 'Amenity': Amenity,
