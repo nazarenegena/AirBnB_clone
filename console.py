@@ -18,36 +18,47 @@ from models.review import Review
 
 def parse_cmd(argv: str) -> list:
     """
-    Parse or split a string (argv) based on some pattern
-    example, spaces, brackects
+    Parse / split a string (argv) on patterns
+    example : spaces, brackects
 
     :param arg: string
-    :return:  a list of words representing the parsed string
+    :return: a list of words representing  parsed string
     """
+
+    # check regular expression
+
     braces = re.search(r"\{(.*?)}", argv)
     brackets = re.search(r"\[(.*?)]", argv)
+    
     if not braces:
         if not brackets:
             return [i.strip(",") for i in shlex.split(argv)]
         else:
             var = shlex.split(argv[:brackets.span()[0]])
             retval = [i.strip(",") for i in var]
-            retval.append(brackets.group())
+            brackets = argv[brackets.start():brackets.end()]
+            brackets = brackets.replace('"', '')
+            brackets = brackets.replace("'", '')
+            brackets = brackets.replace(",", " ")
+            brackets = brackets.replace("[", "")
+            brackets = brackets.replace("]", "")
+            retval.append(brackets)
             return retval
     else:
         var = shlex.split(argv[:braces.span()[0]])
         retval = [i.strip(",") for i in var]
-        retval.append(braces.group())
+        braces = argv[braces.start():braces.end()]
+        braces = braces.replace(",", " ")
+        braces = braces.replace("{", "")
+        braces = braces.replace("}", "")
+        retval.append(braces)
         return retval
-
 
 def check_args(args):
     """
-    checks if args is valid
-    Args:
-        args (str): the string containing the arguments passed to a command
-    Returns:
-        the arguments if they are valid, otherwise None
+    checking if args is valid
+    Args: the string containing the arguments passed to command
+    Returns: arguments if they are valid, else None
     """
     arg_list = parse_cmd(args)
     if len(arg_list) == 0:
@@ -99,6 +110,8 @@ class HBNBCommand(cmd.Cmd):
         if not sys.__stdin__.isatty():
             print('(hbnb) ', end='')
         return stop
+    
+
     # an empty line +
     # enter shouldn’t execute anything
 
@@ -107,6 +120,7 @@ class HBNBCommand(cmd.Cmd):
         pass
 
     # checks when input is invalid
+
     def default(self, arg):
 
         action_map = {
@@ -131,21 +145,23 @@ class HBNBCommand(cmd.Cmd):
         return False
 
     # handles the EOF to exit program
+
     def do_EOF(self, arg):
         """Handles EOF to exit program"""
         print()
         return True
 
     # handles the quit action of the program
+
     def do_quit(self, arg):
         """Exits the program"""
         return True
 
     def do_create(self, arg):
         """
-        Create an Instance of a class
+        Creates an Instance of a class
         [USAGE]: create <classname>
-        [Return]: id of the created class
+        [Return]: the id of the created class
         """
         # handles the create command
         # creates a new class instance & prints its id
@@ -158,10 +174,11 @@ class HBNBCommand(cmd.Cmd):
 
     def do_show(self, arg):
         """
-        Prints the string representation of an instance
+        Prints string representation of an instance
         based on the class name and id
         [USAGE]: show <classname> <id>
         """
+
         # handles the show command
         # displays a string representation of a class instance
 
@@ -209,7 +226,7 @@ class HBNBCommand(cmd.Cmd):
 
     def do_all(self, arg):
         """
-        Prints all string representation of all instances
+        Prints all the string representation of all instances
         [USAGE]: all <classname>
         """
         # print the string representation of all the classes instance
@@ -277,3 +294,4 @@ class HBNBCommand(cmd.Cmd):
 
 if __name__ == "__main__":
     HBNBCommand().cmdloop()
+
