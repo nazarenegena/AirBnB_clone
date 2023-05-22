@@ -1,0 +1,37 @@
+/* 
+the section filters
+*/
+
+
+.filter .locations {
+height: 100%;
+width: 25%;
+border-right: 1px #DDDDDD solid;
+margin-left: 20px;
+
+}
+
+.locations h3 {
+    font-weight: 600;
+  
+}
+
+.locations h4 {
+    margin-top: -15px;
+}
+
+.filter .amenities {
+height: 100%;
+width: 25%;
+margin-left: 20px;
+
+}
+
+.amenities h3 {
+font-weight: 600;
+
+}
+
+.amenities h4 {
+margin-top: -15px;
+}
