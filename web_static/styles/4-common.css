@@ -1,0 +1,20 @@
+/* 
+the 4-common file
+between header and footer tags, add a div:
+class-name: container
+max width 1000px
+margin top and bottom 30px - it should be 30px under the bottom of the header (screenshot)
+center horizontally
+
+*/
+
+
+.container {
+    /* max-width: 1000px; */
+    width: 100%;
+    margin : 30px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
